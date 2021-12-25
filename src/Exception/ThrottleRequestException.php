@@ -6,7 +6,7 @@ namespace WilburYu\HyperfCacheExt\Exception;
 
 use RuntimeException;
 
-class ThrottleRequestsException extends RuntimeException
+class ThrottleRequestException extends RuntimeException
 {
     public function __construct(int $code, ?string $message = null, protected array $headers = [])
     {

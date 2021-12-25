@@ -17,6 +17,8 @@ class ConfigProvider
     {
         return [
             'dependencies' => [
+                \Psr\SimpleCache\CacheInterface::class => Cache::class,
+                CacheInterface::class => Cache::class,
             ],
             'commands' => [
             ],

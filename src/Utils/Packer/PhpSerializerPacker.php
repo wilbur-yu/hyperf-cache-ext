@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @link     https://github.com/wilbur-yu
  */
 
-namespace App\Kernel\Utils\Packer;
+namespace WilburYu\HyperfCacheExt\Utils\Packer;
 
 use Hyperf\Contract\PackerInterface;
 
