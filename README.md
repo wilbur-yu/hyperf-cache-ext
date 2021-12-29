@@ -1,5 +1,6 @@
 # 说明
-暂未完成, 请勿使用.
+
+BETA
 
 > 移植了 [Laravel Cache](https://github.com/laravel/framework) 组件的 rate-limiter.
 
@@ -45,7 +46,8 @@ or
 #[Middleware(\WilburYu\HyperfCacheExt\Middleware\ThrottleRequestWithRedisMiddleware::class)]
 ```
 
-如果没有补充自己的缓存驱动, 则直接使用 `ThrottleRequestWithRedisMiddleware` 中间件即可. 在其他地方使用限速时, 可以使用辅助函数 `rate_limiter()`, 使用方法同 `laravel`
+如果你的缓存驱动不是 `redis`, 可以使用 `ThrottleRequestMiddleware` 中间件,反之则直接使用 `ThrottleRequestWithRedisMiddleware` 中间件即可. 在其他地方使用限速时,
+可以使用辅助函数 `rate_limiter()`, 使用方法同 `laravel`
 中的 `RateLimiter Facade`
 , 可参考 [Laravel 限流文档](https://learnku.com/docs/laravel/8.5/current-limiting/11453)
 

@@ -1,11 +1,11 @@
 <?php
 
 use Hyperf\Utils\ApplicationContext;
-use WilburYu\HyperfCacheExt\RateLimiter;
+use WilburYu\HyperfCacheExt\CounterLimiter;
 
 if (!function_exists('rate_limiter')) {
-    function rate_limiter()
+    function counter_limiter()
     {
-        return ApplicationContext::getContainer()->get(RateLimiter::class);
+        return ApplicationContext::getContainer()->get(CounterLimiter::class);
     }
 }

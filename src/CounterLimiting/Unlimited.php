@@ -2,14 +2,7 @@
 
 declare(strict_types=1);
 
-/**
- * This file is part of project wilbur-yu/hyperf-cache-ext.
- *
- * @author   wenbo@wenber.club
- * @link     https://github.com/wilbur-yu
- */
-
-namespace WilburYu\HyperfCacheExt\RateLimiting;
+namespace WilburYu\HyperfCacheExt\CounterLimiting;
 
 class Unlimited extends GlobalLimit
 {

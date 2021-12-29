@@ -2,36 +2,20 @@
 
 declare(strict_types=1);
 
-/**
- * This file is part of project wilbur-yu/hyperf-cache-ext.
- *
- * @author   wenbo@wenber.club
- * @link     https://github.com/wilbur-yu
- */
-
 namespace WilburYu\HyperfCacheExt;
 
 use Closure;
 use Hyperf\Utils\InteractsWithTime;
-use Psr\Container\ContainerInterface;
 use Psr\SimpleCache\CacheInterface;
 
-class RateLimiter
+class CounterLimiter
 {
     use InteractsWithTime;
 
-    protected CacheInterface $cache;
+    private static array $limiters = [];
 
-    /**
-     * The configured limit object resolvers.
-     *
-     * @var array
-     */
-    protected array $limiters = [];
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(protected CacheInterface $cache)
     {
-        $this->cache = $container->get(CacheInterface::class);
     }
 
     /**
@@ -40,13 +24,11 @@ class RateLimiter
      * @param  string    $name
      * @param  \Closure  $callback
      *
-     * @return $this
+     * @return void
      */
-    public function for(string $name, Closure $callback): self
+    public static function for(string $name, Closure $callback): void
     {
-        $this->limiters[$name] = $callback;
-
-        return $this;
+        self::$limiters[$name] = $callback;
     }
 
     /**
@@ -56,9 +38,9 @@ class RateLimiter
      *
      * @return callable|null
      */
-    public function limiter(string $name): ?callable
+    public static function limiter(string $name): ?callable
     {
-        return $this->limiters[$name] ?? null;
+        return self::$limiters[$name] ?? null;
     }
 
     /**
@@ -157,9 +139,9 @@ class RateLimiter
      * @param  string  $key
      *
      * @throws \Psr\SimpleCache\InvalidArgumentException
-     * @return mixed
+     * @return bool
      */
-    public function resetAttempts(string $key): mixed
+    public function resetAttempts(string $key): bool
     {
         $key = $this->cleanRateLimiterKey($key);
 

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @link     https://github.com/wilbur-yu
  */
 
-namespace WilburYu\HyperfCacheExt\RateLimiting;
+namespace WilburYu\HyperfCacheExt\CounterLimiting;
 
 class Limit
 {
