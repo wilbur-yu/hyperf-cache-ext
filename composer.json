@@ -4,9 +4,12 @@
     "license": "MIT",
     "keywords": [
         "php",
-        "hyperf"
+        "hyperf",
+        "throttle",
+        "rate limiter",
+        "counter rate limiter"
     ],
-    "description": "hyperf cache rate-limiter",
+    "description": "hyperf cache counter rate limiter",
     "autoload": {
         "psr-4": {
             "WilburYu\\HyperfCacheExt\\": "src/"
