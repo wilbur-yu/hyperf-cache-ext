@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * This file is part of project wilbur-yu/hyperf-cache-ext.
+ *
+ * @author   wenbo@wenber.club
+ * @link     https://github.com/wilbur-yu
+ */
+
 namespace WilburYu\HyperfCacheExt\Exception\Handler;
 
 use Hyperf\ExceptionHandler\ExceptionHandler;
@@ -10,10 +17,9 @@ use WilburYu\HyperfCacheExt\Exception\CounterRateLimitException;
 
 class CounterRateLimitExceptionHandler extends ExceptionHandler
 {
-
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
-        if ($throwable instanceof CounterRateLimitException && method_exists($throwable, 'getHeaders')) {
+        if ($this->isValid($throwable) && method_exists($throwable, 'getHeaders')) {
             $this->stopPropagation();
             $headers = $throwable->getHeaders();
             foreach ($headers as $k => $v) {
@@ -28,6 +34,6 @@ class CounterRateLimitExceptionHandler extends ExceptionHandler
 
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof CounterRateLimitException::class;
+        return $throwable instanceof CounterRateLimitException;
     }
 }
