@@ -12,23 +12,22 @@ declare(strict_types=1);
 namespace WilburYu\HyperfCacheExt\Aspect;
 
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimit;
-use WilburYu\HyperfCacheExt\Exception\ThrottleRequestException;
 use WilburYu\HyperfCacheExt\CounterLimiter;
 use WilburYu\HyperfCacheExt\CounterLimiting\Unlimited;
-use WilburYu\HyperfCacheExt\Redis\Limiters\DurationLimiter;
 use Closure;
 use Hyperf\Contract\ContainerInterface;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Annotation\Aspect;
-use Psr\Http\Message\RequestInterface;
+use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\Redis\Redis;
 use Psr\Http\Message\ResponseInterface;
 use Hyperf\Utils\Arr;
 use Hyperf\Utils\Context;
 use Hyperf\Utils\InteractsWithTime;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Utils\Str;
+use Psr\SimpleCache\InvalidArgumentException;
+use WilburYu\HyperfCacheExt\Exception\ThrottleRequestException;
 
 #[Aspect]
 class CounterRateLimitAnnotationAspect extends AbstractAspect
@@ -40,45 +39,24 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
     ];
     protected array $config;
 
-    protected bool $driverIsRedis = true;
-
     private array $annotationProperty;
 
-    /**
-     * The timestamp of the end of the current duration by key.
-     */
-    public array $decaysAt = [];
-
-    /**
-     * The number of remaining slots by key.
-     */
-    public array $remaining = [];
+    protected RequestInterface $request;
+    protected CounterLimiter $limiter;
 
     /**
      * @param  ContainerInterface  $container
-     * @param  RequestInterface    $request
-     * @param  ResponseInterface   $response
-     * @param  CounterLimiter      $limiter
-     * @param  ConfigInterface     $config
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function __construct(
-        protected ContainerInterface $container,
-        protected RequestInterface $request,
-        protected ResponseInterface $response,
-        protected CounterLimiter $limiter,
-        ConfigInterface $config,
+        protected ContainerInterface $container
     ) {
-        $this->config = $this->parseConfig($config);
+        $this->request = $container->get(RequestInterface::class);
+        $this->limiter = $container->get(CounterLimiter::class);
+        $this->config = $this->parseConfig($container->get(ConfigInterface::class));
         $this->annotationProperty = get_object_vars(new CounterRateLimit());
-        $this->driverHandler($config);
-    }
-
-    protected function driverHandler(ConfigInterface $config): void
-    {
-        $this->driverIsRedis = $this->config['driver'] === 'redis';
-        if ($this->driverIsRedis) {
-            $this->config['prefix'] = $config->get('cache.default.prefix').$this->config['prefix'];
-        }
     }
 
     /**
@@ -93,7 +71,6 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
         $annotation = $this->getWeightingAnnotation($this->getAnnotations($proceedingJoinPoint));
-
         $counterKey = $annotation->key ?? null;
         if (is_callable($counterKey)) {
             $counterKey = $counterKey($this->request);
@@ -103,7 +80,7 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         }
         $namedLimiter = $annotation->named ?? null;
         if (is_string($namedLimiter) && !is_null($limiter = CounterLimiter::limiter($namedLimiter))) {
-            return $this->handleRequestUsingNamedLimiter($namedLimiter, $limiter, $proceedingJoinPoint);
+            return $this->handleRequestUsingNamedLimiter($namedLimiter, $limiter, $annotation, $proceedingJoinPoint);
         }
 
         return $this->handleRequest(
@@ -121,17 +98,17 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
     /**
      * @param  string                              $limiterName
      * @param  \Closure                            $limiter
+     * @param                                      $annotation
      * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
      *
      * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return ResponseInterface
      */
     protected function handleRequestUsingNamedLimiter(
         string $limiterName,
         Closure $limiter,
+        $annotation,
         ProceedingJoinPoint $proceedingJoinPoint
     ): ResponseInterface {
         $result = $limiter($this->request);
@@ -140,9 +117,9 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         }
 
         return $this->handleRequest(
-            collect(Arr::wrap($result))->map(function ($limit) use ($limiterName) {
+            collect(Arr::wrap($result))->map(function ($limit) use ($limiterName, $annotation) {
                 return (object)[
-                    'key' => $this->config['prefix'].md5($limiterName.$limit->key),
+                    'key' => $annotation->prefix.md5($limiterName.$limit->key),
                     'maxAttempts' => $limit->maxAttempts,
                     'decayMinutes' => $limit->decayMinutes,
                 ];
@@ -156,38 +133,27 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
      * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
      *
      * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return \Psr\Http\Message\ResponseInterface
      */
     protected function handleRequest(array $limits, ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
         foreach ($limits as $limit) {
-            $tooManyAttempts =
-                $this->driverIsRedis ?
-                    $this->tooManyAttemptsWithRedis($limit->key, $limit->maxAttempts, $limit->decayMinutes) :
-                    $this->limiter->tooManyAttempts($limit->key, $limit->maxAttempts);
-            if ($tooManyAttempts) {
+            if ($this->limiter->tooManyAttempts($limit->key, $limit->maxAttempts)) {
                 throw $this->buildException($limit->key, $limit->maxAttempts);
             }
 
-            !$this->driverIsRedis && $this->limiter->hit($limit->key, $limit->decayMinutes * 60);
+            $this->limiter->hit($limit->key, $limit->decayMinutes * 60);
         }
 
         $response = $proceedingJoinPoint->process();
         Context::set(ResponseInterface::class, $response);
 
         foreach ($limits as $limit) {
-            if ($this->driverIsRedis) {
-                $remainingAttempts = $this->calculateRemainingAttempts($limit->key, $limit->maxAttempts);
-            } else {
-                $remainingAttempts = $this->calculateRemainingAttemptsWithRedis($limit->key, $limit->maxAttempts);
-            }
             $response = $this->addHeaders(
                 $response,
                 $limit->maxAttempts,
-                $remainingAttempts
+                $this->calculateRemainingAttempts($limit->key, $limit->maxAttempts)
             );
         }
 
@@ -196,13 +162,16 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
 
     public function getWeightingAnnotation(array $annotations): CounterRateLimit
     {
+        $whereNotNull = static function ($value) {
+            return !is_null($value);
+        };
         $property = array_merge($this->annotationProperty, $this->config);
         /** @var null|CounterRateLimit $annotation */
         foreach ($annotations as $annotation) {
             if (!$annotation) {
                 continue;
             }
-            $property = array_merge($property, array_filter(get_object_vars($annotation)));
+            $property = array_merge($property, array_filter(get_object_vars($annotation), $whereNotNull));
         }
 
         return new CounterRateLimit($property);
@@ -229,7 +198,10 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
             ];
         }
         foreach ($limiterConfig as $k => $v) {
-            $limiterConfig[Str::of($k)->lower()->camel()->__toString()] = $v;
+            if (str_contains($k, '_')) {
+                $limiterConfig[Str::of($k)->lower()->camel()->__toString()] = $v;
+                unset($limiterConfig[$k]);
+            }
         }
 
         return $limiterConfig;
@@ -241,18 +213,14 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
      * @param  string  $key
      * @param  int     $maxAttempts
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return ThrottleRequestException
      */
     protected function buildException(
         string $key,
         int $maxAttempts
     ): ThrottleRequestException {
-        if ($this->driverIsRedis) {
-            $retryAfter = $this->getTimeUntilNextRetry($key);
-        } else {
-            $retryAfter = $this->getTimeUntilNextRetryWithRedis($key);
-        }
+        $retryAfter = $this->getTimeUntilNextRetry($key);
 
         $headers = $this->getHeaders(
             $maxAttempts,
@@ -353,59 +321,5 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
     protected function calculateRemainingAttempts(string $key, int $maxAttempts, ?int $retryAfter = null): int
     {
         return is_null($retryAfter) ? $this->limiter->retriesLeft($key, $maxAttempts) : 0;
-    }
-
-    /**
-     * Calculate the number of remaining attempts.
-     *
-     * @param  string    $key
-     * @param  int       $maxAttempts
-     * @param  int|null  $retryAfter
-     *
-     * @return int
-     */
-    protected function calculateRemainingAttemptsWithRedis(string $key, int $maxAttempts, int $retryAfter = null): int
-    {
-        return is_null($retryAfter) ? $this->remaining[$key] : 0;
-    }
-
-    /**
-     * Get the number of seconds until the lock is released.
-     *
-     * @param  string  $key
-     *
-     * @return int
-     */
-    protected function getTimeUntilNextRetryWithRedis(string $key): int
-    {
-        return $this->decaysAt[$key] - $this->currentTime();
-    }
-
-    /**
-     * Determine if the given key has been "accessed" too many times.
-     *
-     * @param  string  $key
-     * @param  int     $maxAttempts
-     * @param  int     $decayMinutes
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @return mixed
-     */
-    protected function tooManyAttemptsWithRedis(string $key, int $maxAttempts, int $decayMinutes): mixed
-    {
-        $limiter = new DurationLimiter(
-            $this->container->get(Redis::class),
-            $key,
-            $maxAttempts,
-            $decayMinutes * 60
-        );
-
-        return tap(!$limiter->acquire(), function () use ($key, $limiter) {
-            [$this->decaysAt[$key], $this->remaining[$key]] = [
-                $limiter->decaysAt,
-                $limiter->remaining,
-            ];
-        });
     }
 }

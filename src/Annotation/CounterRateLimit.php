@@ -25,8 +25,20 @@ class CounterRateLimit extends AbstractAnnotation
      * @var string|callable
      */
     public $key;
-    public int|string $maxAttempts;
-    public int $decayMinutes;
-    public string $named;
-    public string $prefix;
+    /**
+     * @var int|string
+     */
+    public $maxAttempts;
+    /**
+     * @var int
+     */
+    public $decayMinutes;
+    /**
+     * @var string
+     */
+    public $named;
+    /**
+     * @var string
+     */
+    public $prefix;
 }
