@@ -36,7 +36,7 @@ class CounterRateLimit extends AbstractAnnotation
     /**
      * @var string
      */
-    public $named;
+    public $for;
     /**
      * @var string
      */

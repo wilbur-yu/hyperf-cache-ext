@@ -21,24 +21,4 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 class CounterRateLimitWithRedis extends CounterRateLimit
 {
-    /**
-     * @var string|callable
-     */
-    public $key;
-    /**
-     * @var int|string
-     */
-    public $maxAttempts;
-    /**
-     * @var int
-     */
-    public $decayMinutes;
-    /**
-     * @var string
-     */
-    public $named;
-    /**
-     * @var string
-     */
-    public $prefix;
 }

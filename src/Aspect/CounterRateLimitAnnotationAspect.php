@@ -78,9 +78,9 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         if (!$counterKey) {
             $counterKey = $this->request->fullUrl().':'.$this->request->server('remote_addr');
         }
-        $namedLimiter = $annotation->named ?? null;
-        if (is_string($namedLimiter) && !is_null($limiter = CounterLimiter::limiter($namedLimiter))) {
-            return $this->handleRequestUsingNamedLimiter($namedLimiter, $limiter, $annotation, $proceedingJoinPoint);
+        $limiterName = $annotation->for ?? null;
+        if (is_string($limiterName) && !is_null($limiter = CounterLimiter::limiter($limiterName))) {
+            return $this->handleRequestUsingNamedLimiter($limiterName, $limiter, $annotation, $proceedingJoinPoint);
         }
 
         return $this->handleRequest(

@@ -11,13 +11,15 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt;
 
+use Psr\SimpleCache\CacheInterface as PsrCacheInterface;
+
 class ConfigProvider
 {
     public function __invoke(): array
     {
         return [
             'dependencies' => [
-                \Psr\SimpleCache\CacheInterface::class => Cache::class,
+                PsrCacheInterface::class => Cache::class,
                 CacheInterface::class => Cache::class,
             ],
             'commands' => [
