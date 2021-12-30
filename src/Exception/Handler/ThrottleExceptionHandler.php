@@ -17,11 +17,9 @@ class ThrottleExceptionHandler extends ExceptionHandler
             $this->stopPropagation();
             $headers = $throwable->getHeaders();
             foreach ($headers as $k => $v) {
-                $response->withAddedHeader($k, $v);
+                $response = $response->withAddedHeader($k, $v);
             }
             Context::set(ResponseInterface::class, $response);
-
-            return $response;
         }
 
         return $response;
