@@ -48,6 +48,7 @@ composer require wilbur-yu/hyperf-cache-ext
 ```php
 \WilburYu\HyperfCacheExt\Exception\Handler\CounterRateLimitException::class
 ```
+> 可选, 也可自行捕获, 该异常自带一个 `getHeaders` 方法, 值为: array('X-RateLimit-Limit', 'X-RateLimit-Remaining', 'Retry-After', 'X-RateLimit-Reset')
 
 # 使用
 
