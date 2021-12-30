@@ -13,7 +13,7 @@ class CounterRateLimitExceptionHandler extends ExceptionHandler
 
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
-        if ($throwable instanceof CounterRateLimitException::class && method_exists($throwable, 'getHeaders')) {
+        if ($throwable instanceof CounterRateLimitException && method_exists($throwable, 'getHeaders')) {
             $this->stopPropagation();
             $headers = $throwable->getHeaders();
             foreach ($headers as $k => $v) {
