@@ -3,6 +3,7 @@
 namespace WilburYu\HyperfCacheExt\Exception\Handler;
 
 use Hyperf\ExceptionHandler\ExceptionHandler;
+use Hyperf\Utils\Context;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use WilburYu\HyperfCacheExt\Exception\ThrottleRequestException;
@@ -18,6 +19,7 @@ class ThrottleExceptionHandler extends ExceptionHandler
             foreach ($headers as $k => $v) {
                 $response->withAddedHeader($k, $v);
             }
+            Context::set(ResponseInterface::class, $response);
 
             return $response;
         }
