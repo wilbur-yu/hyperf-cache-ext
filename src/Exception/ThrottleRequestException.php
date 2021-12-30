@@ -8,7 +8,7 @@ use RuntimeException;
 
 class ThrottleRequestException extends RuntimeException
 {
-    public function __construct(int $code, ?string $message = null, protected array $headers = [])
+    public function __construct(int $code, ?string $message = 'Too Many Requests', protected array $headers = [])
     {
         parent::__construct($message, $code);
     }
