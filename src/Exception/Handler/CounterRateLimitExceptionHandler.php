@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Throwable;
 use WilburYu\HyperfCacheExt\Exception\CounterRateLimitException;
 
-class ThrottleExceptionHandler extends ExceptionHandler
+class CounterRateLimitExceptionHandler extends ExceptionHandler
 {
 
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
