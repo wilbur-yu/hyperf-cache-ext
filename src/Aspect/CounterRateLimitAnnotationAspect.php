@@ -27,7 +27,7 @@ use Hyperf\Utils\InteractsWithTime;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Utils\Str;
 use Psr\SimpleCache\InvalidArgumentException;
-use WilburYu\HyperfCacheExt\Exception\ThrottleRequestException;
+use WilburYu\HyperfCacheExt\Exception\CounterRateLimitException;
 
 #[Aspect]
 class CounterRateLimitAnnotationAspect extends AbstractAspect
@@ -214,12 +214,12 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
      * @param  int     $maxAttempts
      *
      * @throws InvalidArgumentException
-     * @return ThrottleRequestException
+     * @return CounterRateLimitException
      */
     protected function buildException(
         string $key,
         int $maxAttempts
-    ): ThrottleRequestException {
+    ): CounterRateLimitException {
         $retryAfter = $this->getTimeUntilNextRetry($key);
 
         $headers = $this->getHeaders(
@@ -228,7 +228,7 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
             $retryAfter
         );
 
-        return new ThrottleRequestException(429, headers: $headers);
+        return new CounterRateLimitException(429, headers: $headers);
     }
 
     /**

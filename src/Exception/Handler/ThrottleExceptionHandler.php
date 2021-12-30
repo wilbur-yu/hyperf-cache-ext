@@ -6,19 +6,20 @@ use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Utils\Context;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
-use WilburYu\HyperfCacheExt\Exception\ThrottleRequestException;
+use WilburYu\HyperfCacheExt\Exception\CounterRateLimitException;
 
 class ThrottleExceptionHandler extends ExceptionHandler
 {
 
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
-        if ($this->isValid($throwable) && method_exists($throwable, 'getHeaders')) {
+        if ($throwable instanceof CounterRateLimitException::class && method_exists($throwable, 'getHeaders')) {
             $this->stopPropagation();
             $headers = $throwable->getHeaders();
             foreach ($headers as $k => $v) {
                 $response = $response->withAddedHeader($k, $v);
             }
+            $response = $response->withStatus($throwable->getCode());
             Context::set(ResponseInterface::class, $response);
         }
 
@@ -27,6 +28,6 @@ class ThrottleExceptionHandler extends ExceptionHandler
 
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof ThrottleRequestException::class;
+        return $throwable instanceof CounterRateLimitException::class;
     }
 }

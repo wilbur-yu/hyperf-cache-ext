@@ -6,7 +6,7 @@ namespace WilburYu\HyperfCacheExt\Exception;
 
 use RuntimeException;
 
-class ThrottleRequestException extends RuntimeException
+class CounterRateLimitException extends RuntimeException
 {
     public function __construct(int $code, ?string $message = 'Too Many Requests', protected array $headers = [])
     {

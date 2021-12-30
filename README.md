@@ -46,7 +46,7 @@ composer require wilbur-yu/hyperf-cache-ext
 2. 在exceptions配置文件中增加:
 
 ```php
-\WilburYu\HyperfCacheExt\Exception\Handler\ThrottleExceptionHandler::class
+\WilburYu\HyperfCacheExt\Exception\Handler\CounterRateLimitException::class
 ```
 
 # 使用
