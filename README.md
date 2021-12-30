@@ -65,9 +65,7 @@ or
 
 如果你的缓存驱动不是 `redis`, 可以使用 `CounterRateLimit` 注解,反之则直接使用 `CounterRateLimitWithRedis` 注解即可.
 
-在其他地方使用限速时, 可以使用辅助函数 `counter_limiter()`, 使用方法同 `laravel`
-中的 `RateLimiter Facade`
-, 可参考 [Laravel 限流文档](https://learnku.com/docs/laravel/8.5/current-limiting/11453)
+在其他地方使用限速时, 可以使用辅助函数 `counter_limiter()`, 使用方法同 `laravel`中的 `RateLimiter Facade`, 可参考 [Laravel 限流文档](https://learnku.com/docs/laravel/8.5/current-limiting/11453)
 
 ```php
 $executed = counter_limiter()->attempt('send-sms:'.$user->id,2,function(){
