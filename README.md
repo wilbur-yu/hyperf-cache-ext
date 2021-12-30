@@ -77,3 +77,6 @@ if (!$executed) {
     return 'Too many messages sent!';
 }
 ```
+# 感谢
+[Laravel Cache](https://github.com/illuminate/cache)
+[Hyperf Rate-Limit](https://github.com/hyperf/rate-limit)
