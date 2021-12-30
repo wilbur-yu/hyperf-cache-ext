@@ -41,7 +41,7 @@ composer require wilbur-yu/hyperf-cache-ext
 ```
 - `for` 即对应 `Laravel Facade` `RateLimiter::for(callable)`, 
 > 在服务启动时, 监听器会收集该命名限制器数组, 供在注解中使用 `for` 参数引用. 在注解切面执行时, 会将当前请求 `\Hyperf\HttpServer\Contract\RequestInterface` 实例注入到该命名闭包.
-- `key` 默认为当前请求 `fullUrl` + `ip`.
+- `key` 默认为当前请求 `fullUrl` + `ip`. 支持字符串与闭包.
 
 2. 在exceptions配置文件中增加:
 
