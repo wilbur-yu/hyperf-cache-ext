@@ -10,6 +10,7 @@
 namespace WilburYu\HyperfCacheExt\Exception\Handler;
 
 use Hyperf\ExceptionHandler\ExceptionHandler;
+use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\Utils\Context;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
@@ -25,8 +26,8 @@ class CounterRateLimitExceptionHandler extends ExceptionHandler
             foreach ($headers as $k => $v) {
                 $response = $response->withAddedHeader($k, $v);
             }
-            $response = $response->withStatus($throwable->getCode());
-            Context::set(ResponseInterface::class, $response);
+
+            return $response->withStatus($throwable->getCode())->withBody(new SwooleStream($throwable->getMessage()));
         }
 
         return $response;
