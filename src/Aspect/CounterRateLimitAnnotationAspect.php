@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace WilburYu\HyperfCacheExt\Aspect;
 
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimit;
+use WilburYu\HyperfCacheExt\Annotation\CounterRateLimitWithRedis;
 use WilburYu\HyperfCacheExt\CounterLimiter;
 use WilburYu\HyperfCacheExt\CounterLimiting\Unlimited;
 use Closure;
@@ -183,7 +184,10 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
 
         return [
             $metadata->class[CounterRateLimit::class] ?? null,
+            $metadata->class[CounterRateLimitWithRedis::class] ?? null,
+
             $metadata->method[CounterRateLimit::class] ?? null,
+            $metadata->method[CounterRateLimitWithRedis::class] ?? null,
         ];
     }
 
