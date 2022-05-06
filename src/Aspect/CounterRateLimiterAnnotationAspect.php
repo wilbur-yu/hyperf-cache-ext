@@ -243,7 +243,7 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
     protected function parseConfig(ConfigInterface $config)
     {
         $limiterConfig = $this->baseParseConfig($config);
-        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'];
+        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'].'counter:';
         unset($limiterConfig['for']);
 
         return $limiterConfig;
