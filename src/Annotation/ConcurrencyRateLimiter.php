@@ -31,4 +31,8 @@ class ConcurrencyRateLimiter extends AbstractAnnotation
      * @var int
      */
     public int $decayMinutes;
+    /**
+     * @var string
+     */
+    public $prefix;
 }
