@@ -74,7 +74,7 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
         $annotation = $this->getAnnotationObject($proceedingJoinPoint);
-        $limiterKey = $this->getRateLimiterKey();
+        $limiterKey = $this->getRateLimiterKey($annotation);
         $limiterName = $annotation->for ?? null;
         if (is_string($limiterName) && !is_null($limiter = CounterLimiter::limiter($limiterName))) {
             return $this->handleRequestUsingNamedLimiter($limiterName, $limiter, $annotation, $proceedingJoinPoint);
