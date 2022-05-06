@@ -65,8 +65,8 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
 
         return $concurrentRateLimiter->name($limiterKey)
             ->allow($annotation->maxAttempts)
-            ->block($annotation->timeout)
-            ->wait($annotation->wait)
+            ->block($annotation->timeout ?? null)
+            ->wait($annotation->wait ?? null)
             ->every(
                 $annotation->decayMinutes
             )
