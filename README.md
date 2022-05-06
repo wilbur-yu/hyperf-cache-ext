@@ -30,7 +30,7 @@ composer require wilbur-yu/hyperf-cache-ext
 'limiter' => [
     'prefix' => 'rate-limit:',    // key前缀
     'max_attempts' => 20,         // 最大允许数
-    'decay_minutes' => 60,        // 解锁前秒数
+    'decay_minutes' => 60,        // 限流单位时间
     'wait' => 250,                // 并发时, 获取锁最大等待毫秒数
     'timeout' => 1,               // 并发时, 获取锁超时秒数
     'for' => [
