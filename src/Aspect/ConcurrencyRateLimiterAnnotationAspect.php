@@ -24,7 +24,9 @@ use WilburYu\HyperfCacheExt\Redis\Limiters\ConcurrencyLimiterBuilder;
 class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
 {
     use InteractsWithTime;
-    use Common;
+    use Common {
+        parseConfig as baseParseConfig;
+    }
 
     public $annotations = [
         ConcurrencyRateLimiter::class,
@@ -94,5 +96,13 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
         }
 
         return new ConcurrencyRateLimiter($property);
+    }
+
+    protected function parseConfig(ConfigInterface $config)
+    {
+        $limiterConfig = $this->baseParseConfig($config);
+        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'].'concurrent:';
+
+        return $limiterConfig;
     }
 }

@@ -22,7 +22,9 @@ use WilburYu\HyperfCacheExt\Redis\Limiters\DurationLimiterBuilder;
 #[Aspect]
 class DurationRateLimiterAnnotationAspect extends AbstractAspect
 {
-    use Common;
+    use Common {
+        parseConfig as baseParseConfig;
+    }
 
     public $annotations = [
         DurationRateLimiter::class,
@@ -94,5 +96,13 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
         }
 
         return new DurationRateLimiter($property);
+    }
+
+    protected function parseConfig(ConfigInterface $config)
+    {
+        $limiterConfig = $this->baseParseConfig($config);
+        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'].'duration:';
+
+        return $limiterConfig;
     }
 }
