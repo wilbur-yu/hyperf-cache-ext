@@ -59,7 +59,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
         $annotation = $this->getAnnotationObject($proceedingJoinPoint);
-        $limiterKey = $this->getRateLimiterKey();
+        $limiterKey = $this->getRateLimiterKey($annotation);
 
         $concurrentRateLimiter = make(ConcurrencyLimiterBuilder::class);
 

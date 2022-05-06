@@ -36,7 +36,7 @@ trait Common
         return $limiterConfig;
     }
 
-    protected function getRateLimiterKey(): ?string
+    protected function getRateLimiterKey($annotation): ?string
     {
         $rateLimiterKey = $annotation->key ?? null;
         if (is_callable($rateLimiterKey)) {
