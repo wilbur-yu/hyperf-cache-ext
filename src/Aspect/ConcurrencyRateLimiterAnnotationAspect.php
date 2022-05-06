@@ -64,7 +64,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
         $concurrentRateLimiter = make(ConcurrencyLimiterBuilder::class);
 
         return $concurrentRateLimiter->name($limiterKey)->limit($annotation->maxAttempts)->then(
-            $proceedingJoinPoint->process()
+            fn () => $proceedingJoinPoint->process()
         );
     }
 

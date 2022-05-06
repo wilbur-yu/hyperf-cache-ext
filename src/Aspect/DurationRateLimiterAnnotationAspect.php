@@ -64,7 +64,7 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
         return $concurrentRateLimiter->name($limiterKey)->allow($annotation->maxAttempts)->every(
             $annotation->decayMinutes
         )->then(
-            $proceedingJoinPoint->process()
+            fn () => $proceedingJoinPoint->process()
         );
     }
 
