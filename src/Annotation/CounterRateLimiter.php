@@ -28,17 +28,17 @@ class CounterRateLimiter extends AbstractAnnotation
     /**
      * @var int|string
      */
-    public string|int $maxAttempts;
+    public $maxAttempts;
     /**
      * @var int
      */
-    public int $decayMinutes;
+    public $decayMinutes;
     /**
      * @var string
      */
-    public string $for;
+    public $for;
     /**
      * @var string
      */
-    public string $prefix;
+    public $prefix;
 }
