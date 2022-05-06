@@ -70,7 +70,7 @@ class RedisDriver extends BaseRedisDriver
      */
     public function funnel(string $name): ConcurrencyLimiterBuilder
     {
-        return new ConcurrencyLimiterBuilder($this->redis, $name);
+        return new ConcurrencyLimiterBuilder($this->redis);
     }
 
     /**
@@ -78,6 +78,6 @@ class RedisDriver extends BaseRedisDriver
      */
     public function throttle(string $name): DurationLimiterBuilder
     {
-        return new DurationLimiterBuilder($this->redis, $name);
+        return new DurationLimiterBuilder($this->redis);
     }
 }

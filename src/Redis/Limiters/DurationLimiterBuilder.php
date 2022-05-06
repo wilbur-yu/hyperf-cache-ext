@@ -54,15 +54,25 @@ class DurationLimiterBuilder
     /**
      * Create a new builder instance.
      *
-     * @param  Redis   $connection
-     * @param  string  $name
+     * @param  Redis  $connection
      *
      * @return void
      */
-    public function __construct(Redis $connection, string $name)
+    public function __construct(Redis $connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
+     * @param  string  $name
+     *
+     * @return $this
+     */
+    public function name(string $name): self
     {
         $this->name = $name;
-        $this->connection = $connection;
+
+        return $this;
     }
 
     /**
