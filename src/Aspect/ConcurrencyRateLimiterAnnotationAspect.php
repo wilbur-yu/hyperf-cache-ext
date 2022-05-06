@@ -101,7 +101,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
     protected function parseConfig(ConfigInterface $config)
     {
         $limiterConfig = $this->baseParseConfig($config);
-        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'].'concurrent:';
+        $limiterConfig['prefix'] .= 'concurrent:';
 
         return $limiterConfig;
     }

@@ -101,7 +101,7 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
     protected function parseConfig(ConfigInterface $config)
     {
         $limiterConfig = $this->baseParseConfig($config);
-        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'].'duration:';
+        $limiterConfig['prefix'] .= 'duration:';
 
         return $limiterConfig;
     }

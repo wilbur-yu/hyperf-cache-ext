@@ -37,6 +37,10 @@ trait Common
             }
         }
 
+        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'] ?? 'rate-limiter:';
+
+        unset($limiterConfig['for']);
+
         return $limiterConfig;
     }
 
