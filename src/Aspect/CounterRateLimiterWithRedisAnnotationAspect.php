@@ -122,12 +122,4 @@ class CounterRateLimiterWithRedisAnnotationAspect extends CounterRateLimiterAnno
             ];
         });
     }
-
-    protected function parseConfig(ConfigInterface $config)
-    {
-        $limiterConfig = parent::parseConfig($config);
-        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'];
-
-        return $limiterConfig;
-    }
 }

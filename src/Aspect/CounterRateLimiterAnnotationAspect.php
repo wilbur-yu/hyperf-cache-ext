@@ -33,7 +33,9 @@ use WilburYu\HyperfCacheExt\Exception\CounterRateLimiterException;
 class CounterRateLimiterAnnotationAspect extends AbstractAspect
 {
     use InteractsWithTime;
-    use Common;
+    use Common {
+        parseConfig as baseParseConfig;
+    }
 
     public $annotations = [
         CounterRateLimiter::class,
@@ -236,5 +238,14 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
     protected function calculateRemainingAttempts(string $key, int $maxAttempts, ?int $retryAfter = null): int
     {
         return is_null($retryAfter) ? $this->limiter->retriesLeft($key, $maxAttempts) : 0;
+    }
+
+    protected function parseConfig(ConfigInterface $config)
+    {
+        $limiterConfig = $this->baseParseConfig($config);
+        $limiterConfig['prefix'] = $config->get('cache.default.prefix').$limiterConfig['prefix'];
+        unset($limiterConfig['for']);
+
+        return $limiterConfig;
     }
 }
