@@ -13,6 +13,10 @@ use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Utils\Str;
 use Psr\Http\Message\ResponseInterface;
+use WilburYu\HyperfCacheExt\Annotation\ConcurrencyRateLimiter;
+use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiter;
+use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
+use WilburYu\HyperfCacheExt\Annotation\DurationRateLimiter;
 
 trait Common
 {
@@ -43,14 +47,15 @@ trait Common
             $rateLimiterKey = $rateLimiterKey($this->request);
         }
         if (!$rateLimiterKey) {
-            $rateLimiterKey = $this->request->fullUrl().':'.$this->request->server('remote_addr');
+            $rateLimiterKey = sha1($this->request->fullUrl().':'.$this->request->server('remote_addr'));
         }
 
         return $rateLimiterKey;
     }
 
-    protected function getAnnotationObject(ProceedingJoinPoint $proceedingJoinPoint)
-    {
+    protected function getAnnotationObject(
+        ProceedingJoinPoint $proceedingJoinPoint
+    ): ConcurrencyRateLimiter|CounterRateLimiter|CounterRateLimiterWithRedis|DurationRateLimiter {
         return $this->getWeightingAnnotation($this->getAnnotations($proceedingJoinPoint));
     }
 
