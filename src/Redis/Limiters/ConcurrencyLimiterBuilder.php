@@ -111,25 +111,25 @@ class ConcurrencyLimiterBuilder
     /**
      * Set the amount of time to block until a lock is available.
      *
-     * @param  int  $timeout
+     * @param  int|null  $timeout
      *
      * @return $this
      */
-    public function block(int $timeout): self
+    public function block(int|null $timeout): self
     {
-        $this->timeout = $timeout;
+        $timeout && $this->timeout = $timeout;
 
         return $this;
     }
 
     /**
-     * @param  int  $wait
+     * @param  int|null  $wait
      *
      * @return $this
      */
-    public function wait(int $wait): self
+    public function wait(int|null $wait): self
     {
-        $this->wait = $wait;
+        $wait && $this->wait = $wait;
 
         return $this;
     }
