@@ -9,6 +9,7 @@
 
 namespace WilburYu\HyperfCacheExt\Aspect;
 
+use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\HttpServer\Contract\RequestInterface;
@@ -17,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use WilburYu\HyperfCacheExt\Annotation\ConcurrencyRateLimiter;
 use WilburYu\HyperfCacheExt\Redis\Limiters\ConcurrencyLimiterBuilder;
 
+#[Aspect]
 class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
 {
     use InteractsWithTime;
