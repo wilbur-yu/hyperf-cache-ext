@@ -9,11 +9,13 @@
 
 namespace WilburYu\HyperfCacheExt\Aspect;
 
+use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Utils\InteractsWithTime;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use WilburYu\HyperfCacheExt\Annotation\ConcurrencyRateLimiter;
 use WilburYu\HyperfCacheExt\Redis\Limiters\ConcurrencyLimiterBuilder;
@@ -33,6 +35,20 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
     private array $annotationProperty;
 
     protected RequestInterface $request;
+
+    /**
+     * @param  ContainerInterface  $container
+     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function __construct(
+        protected ContainerInterface $container
+    ) {
+        $this->request = $container->get(RequestInterface::class);
+        $this->config = $this->parseConfig($container->get(ConfigInterface::class));
+        $this->annotationProperty = get_object_vars(new ConcurrencyRateLimiter());
+    }
 
     /**
      * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
