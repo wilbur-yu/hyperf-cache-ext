@@ -23,16 +23,29 @@ class ConcurrencyRateLimiter extends AbstractAnnotation
      * @var string|callable
      */
     public $key;
+
     /**
      * @var int|string
      */
     public string|int $maxAttempts;
+
     /**
      * @var int
      */
     public int $decayMinutes;
+
     /**
      * @var string
      */
-    public $prefix;
+    public string $prefix;
+
+    /**
+     * @var int
+     */
+    public int $timeout;
+
+    /**
+     * @var int
+     */
+    public int $wait;
 }

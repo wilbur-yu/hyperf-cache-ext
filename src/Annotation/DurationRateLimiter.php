@@ -33,8 +33,19 @@ class DurationRateLimiter extends AbstractAnnotation
      * @var int
      */
     public int $decayMinutes;
+
     /**
      * @var string
      */
-    public $prefix;
+    public string $prefix;
+
+    /**
+     * @var int
+     */
+    public int $timeout;
+
+    /**
+     * @var int
+     */
+    public int $wait;
 }

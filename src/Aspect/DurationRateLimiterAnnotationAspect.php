@@ -63,11 +63,16 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
 
         $concurrentRateLimiter = make(DurationLimiterBuilder::class);
 
-        return $concurrentRateLimiter->name($limiterKey)->allow($annotation->maxAttempts)->every(
-            $annotation->decayMinutes
-        )->then(
-            fn () => $proceedingJoinPoint->process()
-        );
+        return $concurrentRateLimiter->name($limiterKey)
+            ->allow($annotation->maxAttempts)
+            ->block($annotation->timeout)
+            ->wait($annotation->wait)
+            ->every(
+                $annotation->decayMinutes
+            )
+            ->then(
+                fn () => $proceedingJoinPoint->process()
+            );
     }
 
     public function getAnnotations(ProceedingJoinPoint $proceedingJoinPoint): array

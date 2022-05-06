@@ -51,6 +51,12 @@ class ConcurrencyLimiterBuilder
     public int $timeout = 3;
 
     /**
+     * Number of seconds to wait for lock acquisition
+     * @var int
+     */
+    public int $wait = 250;
+
+    /**
      * Create a new builder instance.
      *
      * @param  Redis  $connection
@@ -117,6 +123,18 @@ class ConcurrencyLimiterBuilder
     }
 
     /**
+     * @param  int  $wait
+     *
+     * @return $this
+     */
+    public function wait(int $wait): self
+    {
+        $this->wait = $wait;
+
+        return $this;
+    }
+
+    /**
      * Execute the given callback if a lock is obtained, otherwise call the failure callback.
      *
      * @param  callable       $callback
@@ -134,7 +152,7 @@ class ConcurrencyLimiterBuilder
                 $this->name,
                 $this->maxLocks,
                 $this->releaseAfter
-            ))->block($this->timeout, $callback);
+            ))->block($this->timeout, $this->wait, $callback);
         } catch (LimiterTimeoutException $e) {
             if ($failure) {
                 return $failure($e);

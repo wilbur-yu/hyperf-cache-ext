@@ -63,13 +63,14 @@ class ConcurrencyLimiter
      * Attempt to acquire the lock for the given number of seconds.
      *
      * @param  int            $timeout
+     * @param  int            $blockMinutes
      * @param  callable|null  $callback
      *
-     * @throws LimiterTimeoutException|Throwable
+     * @throws \Throwable
+     * @throws \WilburYu\HyperfCacheExt\Exception\LimiterTimeoutException
      * @return mixed
-     *
      */
-    public function block(int $timeout, ?callable $callback = null): mixed
+    public function block(int $timeout, int $blockMinutes, ?callable $callback = null): mixed
     {
         $starting = time();
 
@@ -80,7 +81,7 @@ class ConcurrencyLimiter
                 throw new LimiterTimeoutException(code: 429);
             }
 
-            usleep(250 * 1000);
+            usleep($blockMinutes * 1000);
         }
 
         if (is_callable($callback)) {
