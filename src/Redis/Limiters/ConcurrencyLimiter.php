@@ -77,7 +77,7 @@ class ConcurrencyLimiter
 
         while (!$slot = $this->acquire($id)) {
             if (time() - $timeout >= $starting) {
-                throw new LimiterTimeoutException();
+                throw new LimiterTimeoutException(code: 429);
             }
 
             usleep(250 * 1000);

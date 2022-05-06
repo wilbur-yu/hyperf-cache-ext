@@ -87,7 +87,7 @@ class DurationLimiter
 
         while (!$this->acquire()) {
             if (time() - $timeout >= $starting) {
-                throw new LimiterTimeoutException();
+                throw new LimiterTimeoutException(code: 429);
             }
 
             usleep(750 * 1000);
