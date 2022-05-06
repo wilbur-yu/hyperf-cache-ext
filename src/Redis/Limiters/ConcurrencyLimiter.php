@@ -66,10 +66,10 @@ class ConcurrencyLimiter
      * @param  callable|null  $callback
      *
      * @throws LimiterTimeoutException|Throwable
-     * @return bool
+     * @return mixed
      *
      */
-    public function block(int $timeout, ?callable $callback = null): bool
+    public function block(int $timeout, ?callable $callback = null): mixed
     {
         $starting = time();
 
