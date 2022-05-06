@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of project wilbur-yu/hyperf-cache-ext.
  *
@@ -19,6 +17,18 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
  * @Target({"CLASS", "METHOD"})
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
-class CounterRateLimitWithRedis extends CounterRateLimit
+class ConcurrencyRateLimiter extends AbstractAnnotation
 {
+    /**
+     * @var string|callable
+     */
+    public $key;
+    /**
+     * @var int|string
+     */
+    public string|int $maxAttempts;
+    /**
+     * @var int
+     */
+    public int $decayMinutes;
 }

@@ -11,12 +11,11 @@ namespace WilburYu\HyperfCacheExt\Exception\Handler;
 
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\Utils\Context;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
-use WilburYu\HyperfCacheExt\Exception\CounterRateLimitException;
+use WilburYu\HyperfCacheExt\Exception\CounterRateLimiterException;
 
-class CounterRateLimitExceptionHandler extends ExceptionHandler
+class CounterRateLimiterExceptionHandler extends ExceptionHandler
 {
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
@@ -35,6 +34,6 @@ class CounterRateLimitExceptionHandler extends ExceptionHandler
 
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof CounterRateLimitException;
+        return $throwable instanceof CounterRateLimiterException;
     }
 }

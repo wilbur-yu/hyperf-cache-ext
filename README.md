@@ -30,7 +30,7 @@ composer require wilbur-yu/hyperf-cache-ext
 'limiter' => [
     'max_attempts' => 5,  // 最大允许次数
     'decay_minutes' => 1, // 限流单位时间
-    'prefix' => 'counter-rate-limit:', // key 前缀
+    'prefix' => 'rate-limit:', // key 前缀
     'for' => [
         'common' => static function (\Hyperf\HttpServer\Contract\RequestInterface $request) {
             return Limit::perMinute(3);
@@ -46,7 +46,7 @@ composer require wilbur-yu/hyperf-cache-ext
 2. 在exceptions配置文件中增加:
 
 ```php
-\WilburYu\HyperfCacheExt\Exception\Handler\CounterRateLimitException::class
+\WilburYu\HyperfCacheExt\Exception\Handler\CounterRateLimiterException::class
 ```
 > 可选, 也可自行捕获, 该异常自带一个 `getHeaders` 方法, 值为: array('X-RateLimit-Limit', 'X-RateLimit-Remaining', 'Retry-After', 'X-RateLimit-Reset')
 
@@ -55,9 +55,9 @@ composer require wilbur-yu/hyperf-cache-ext
 在控制器中使用计数器限速注解
 
 ```php
-#[CounterRateLimitWithRedis(maxAttempts: 5, decayMinutes: 1)]
+#[CounterRateLimiterWithRedis(maxAttempts: 5, decayMinutes: 1)]
 or
-#[CounterRateLimit(for: "common")]
+#[CounterRateLimiter(for: "common")]
 ```
 
 > 注解参数同配置文件, 优先级为注解>配置>默认.

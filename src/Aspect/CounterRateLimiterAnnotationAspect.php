@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt\Aspect;
 
-use WilburYu\HyperfCacheExt\Annotation\CounterRateLimit;
-use WilburYu\HyperfCacheExt\Annotation\CounterRateLimitWithRedis;
+use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiter;
+use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
 use WilburYu\HyperfCacheExt\CounterLimiter;
 use WilburYu\HyperfCacheExt\CounterLimiting\Unlimited;
 use Closure;
@@ -26,23 +26,25 @@ use Hyperf\Utils\Arr;
 use Hyperf\Utils\Context;
 use Hyperf\Utils\InteractsWithTime;
 use Hyperf\Di\Aop\AbstractAspect;
-use Hyperf\Utils\Str;
 use Psr\SimpleCache\InvalidArgumentException;
-use WilburYu\HyperfCacheExt\Exception\CounterRateLimitException;
+use WilburYu\HyperfCacheExt\Exception\CounterRateLimiterException;
 
 #[Aspect]
-class CounterRateLimitAnnotationAspect extends AbstractAspect
+class CounterRateLimiterAnnotationAspect extends AbstractAspect
 {
     use InteractsWithTime;
+    use Common;
 
     public $annotations = [
-        CounterRateLimit::class,
+        CounterRateLimiter::class,
     ];
+
     protected array $config;
 
     private array $annotationProperty;
 
     protected RequestInterface $request;
+
     protected CounterLimiter $limiter;
 
     /**
@@ -57,28 +59,20 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         $this->request = $container->get(RequestInterface::class);
         $this->limiter = $container->get(CounterLimiter::class);
         $this->config = $this->parseConfig($container->get(ConfigInterface::class));
-        $this->annotationProperty = get_object_vars(new CounterRateLimit());
+        $this->annotationProperty = get_object_vars(new CounterRateLimiter());
     }
 
     /**
      * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
      *
      * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return ResponseInterface
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
-        $annotation = $this->getWeightingAnnotation($this->getAnnotations($proceedingJoinPoint));
-        $counterKey = $annotation->key ?? null;
-        if (is_callable($counterKey)) {
-            $counterKey = $counterKey($this->request);
-        }
-        if (!$counterKey) {
-            $counterKey = $this->request->fullUrl().':'.$this->request->server('remote_addr');
-        }
+        $annotation = $this->getAnnotationObject($proceedingJoinPoint);
+        $limiterKey = $this->getRateLimiterKey();
         $limiterName = $annotation->for ?? null;
         if (is_string($limiterName) && !is_null($limiter = CounterLimiter::limiter($limiterName))) {
             return $this->handleRequestUsingNamedLimiter($limiterName, $limiter, $annotation, $proceedingJoinPoint);
@@ -87,7 +81,7 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         return $this->handleRequest(
             [
                 (object)[
-                    'key' => $annotation->prefix.$counterKey,
+                    'key' => $annotation->prefix.$limiterKey,
                     'maxAttempts' => $annotation->maxAttempts,
                     'decayMinutes' => $annotation->decayMinutes,
                 ],
@@ -139,6 +133,7 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
      */
     protected function handleRequest(array $limits, ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
+        /** @var object<string, int, int> $limit */
         foreach ($limits as $limit) {
             if ($this->limiter->tooManyAttempts($limit->key, $limit->maxAttempts)) {
                 throw $this->buildException($limit->key, $limit->maxAttempts);
@@ -161,13 +156,13 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         return $response;
     }
 
-    public function getWeightingAnnotation(array $annotations): CounterRateLimit
+    public function getWeightingAnnotation(array $annotations): CounterRateLimiter
     {
         $whereNotNull = static function ($value) {
             return !is_null($value);
         };
         $property = array_merge($this->annotationProperty, $this->config);
-        /** @var null|CounterRateLimit $annotation */
+        /** @var null|CounterRateLimiter $annotation */
         foreach ($annotations as $annotation) {
             if (!$annotation) {
                 continue;
@@ -175,7 +170,7 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
             $property = array_merge($property, array_filter(get_object_vars($annotation), $whereNotNull));
         }
 
-        return new CounterRateLimit($property);
+        return new CounterRateLimiter($property);
     }
 
     public function getAnnotations(ProceedingJoinPoint $proceedingJoinPoint): array
@@ -183,32 +178,12 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
         $metadata = $proceedingJoinPoint->getAnnotationMetadata();
 
         return [
-            $metadata->class[CounterRateLimit::class] ?? null,
-            $metadata->class[CounterRateLimitWithRedis::class] ?? null,
+            $metadata->class[CounterRateLimiter::class] ?? null,
+            $metadata->class[CounterRateLimiterWithRedis::class] ?? null,
 
-            $metadata->method[CounterRateLimit::class] ?? null,
-            $metadata->method[CounterRateLimitWithRedis::class] ?? null,
+            $metadata->method[CounterRateLimiter::class] ?? null,
+            $metadata->method[CounterRateLimiterWithRedis::class] ?? null,
         ];
-    }
-
-    protected function parseConfig(ConfigInterface $config)
-    {
-        if ($config->has('cache.limiter')) {
-            $limiterConfig = $config->get('cache.limiter');
-        } else {
-            $limiterConfig = [
-                'max_attempts' => 60,
-                'decay_minutes' => 1,
-            ];
-        }
-        foreach ($limiterConfig as $k => $v) {
-            if (str_contains($k, '_')) {
-                $limiterConfig[Str::of($k)->lower()->camel()->__toString()] = $v;
-                unset($limiterConfig[$k]);
-            }
-        }
-
-        return $limiterConfig;
     }
 
     /**
@@ -218,12 +193,12 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
      * @param  int     $maxAttempts
      *
      * @throws InvalidArgumentException
-     * @return CounterRateLimitException
+     * @return CounterRateLimiterException
      */
     protected function buildException(
         string $key,
         int $maxAttempts
-    ): CounterRateLimitException {
+    ): CounterRateLimiterException {
         $retryAfter = $this->getTimeUntilNextRetry($key);
 
         $headers = $this->getHeaders(
@@ -232,7 +207,7 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
             $retryAfter
         );
 
-        return new CounterRateLimitException(429, headers: $headers);
+        return new CounterRateLimiterException(429, headers: $headers);
     }
 
     /**
@@ -246,70 +221,6 @@ class CounterRateLimitAnnotationAspect extends AbstractAspect
     protected function getTimeUntilNextRetry(string $key): int
     {
         return $this->limiter->availableIn($key);
-    }
-
-    /**
-     * Add the limit header information to the given response.
-     *
-     * @param  \Psr\Http\Message\ResponseInterface  $response
-     * @param  int                                  $maxAttempts
-     * @param  int                                  $remainingAttempts
-     * @param  int|null                             $retryAfter
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    protected function addHeaders(
-        ResponseInterface $response,
-        int $maxAttempts,
-        int $remainingAttempts,
-        int $retryAfter = null
-    ): ResponseInterface {
-        $headers = $this->getHeaders($maxAttempts, $remainingAttempts, $retryAfter, $response);
-        if (method_exists($response, 'withAddedHeaders')) {
-            $response->withAddedHeaders($headers);
-        } else {
-            foreach ($headers as $k => $v) {
-                $response->withAddedHeader($k, $v);
-            }
-        }
-
-        return $response;
-    }
-
-    /**
-     * Get the limit headers information.
-     *
-     * @param  int                     $maxAttempts
-     * @param  int                     $remainingAttempts
-     * @param  int|null                $retryAfter
-     * @param  ResponseInterface|null  $response
-     *
-     * @return array
-     */
-    protected function getHeaders(
-        int $maxAttempts,
-        int $remainingAttempts,
-        int $retryAfter = null,
-        ?ResponseInterface $response = null
-    ): array {
-        if ($response && !is_null($response->getHeaderLine('X-RateLimit-Remaining'))
-            && (int)$response->getHeaderLine(
-                'X-RateLimit-Remaining'
-            ) <= $remainingAttempts) {
-            return [];
-        }
-
-        $headers = [
-            'X-RateLimit-Limit' => $maxAttempts,
-            'X-RateLimit-Remaining' => $remainingAttempts,
-        ];
-
-        if (!is_null($retryAfter)) {
-            $headers['Retry-After'] = $retryAfter;
-            $headers['X-RateLimit-Reset'] = $this->availableAt($retryAfter);
-        }
-
-        return $headers;
     }
 
     /**
