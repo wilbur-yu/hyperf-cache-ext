@@ -132,7 +132,7 @@ $executed = concurrency_limiter('key')->limit(100)->then(function(){
 可参考[高级限流器: 限定单位时间访问上限](https://laravelacademy.org/post/22188#toc-3)
 
 ```php
-$executed = concurrency_limiter('key')->allow(100)->every(10)->then(function(){
+$executed = duration_limiter('key')->allow(100)->every(10)->then(function(){
     // send sms logic
 }, function(){
     // 异常上时调用
