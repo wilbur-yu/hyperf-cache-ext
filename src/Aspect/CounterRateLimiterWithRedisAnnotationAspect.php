@@ -13,7 +13,6 @@ namespace WilburYu\HyperfCacheExt\Aspect;
 
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
 use WilburYu\HyperfCacheExt\Redis\Limiters\DurationLimiter;
-use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Redis\Redis;
