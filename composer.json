@@ -7,7 +7,12 @@
         "hyperf",
         "throttle",
         "php rate limiter",
-        "php counter rate limiter"
+        "hyperf rate limiter",
+        "php counter rate limiter",
+        "php concurreny rate limiter",
+        "php duration rate limiter",
+        "hyperf duration limiter",
+        "hyperf concurreny limiter"
     ],
     "description": "hyperf cache counter rate limiter",
     "autoload": {
