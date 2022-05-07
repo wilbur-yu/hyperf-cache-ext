@@ -70,7 +70,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
             ->block($annotation->timeout ?? null)
             ->wait($annotation->wait ?? null)
             ->releaseAfter(
-                $annotation->decayMinutes
+                $annotation->decayMinutes * 60
             )
             ->then(
                 fn () => $proceedingJoinPoint->process()

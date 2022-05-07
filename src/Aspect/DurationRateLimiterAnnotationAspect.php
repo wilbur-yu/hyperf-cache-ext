@@ -68,7 +68,7 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
             ->block($annotation->timeout ?? null)
             ->wait($annotation->wait ?? null)
             ->every(
-                $annotation->decayMinutes
+                $annotation->decayMinutes * 60
             )
             ->then(
                 fn () => $proceedingJoinPoint->process()
