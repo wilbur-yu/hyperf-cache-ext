@@ -154,6 +154,7 @@ class ConcurrencyLimiterBuilder
                 $this->releaseAfter
             ))->block($this->timeout, $this->wait, $callback);
         } catch (LimiterTimeoutException $e) {
+            // 达到并发访问上限
             if ($failure) {
                 return $failure($e);
             }
