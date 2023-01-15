@@ -26,7 +26,7 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
         parseConfig as baseParseConfig;
     }
 
-    public $annotations = [
+    public array $annotations = [
         DurationRateLimiter::class,
     ];
 
@@ -103,7 +103,7 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
         return new DurationRateLimiter($property);
     }
 
-    protected function parseConfig(ConfigInterface $config)
+    protected function parseConfig(ConfigInterface $config): array
     {
         $limiterConfig = $this->baseParseConfig($config);
         $limiterConfig['prefix'] .= 'duration:';

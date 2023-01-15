@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt\Aspect;
 
+use Hyperf\Context\Context;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiter;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
 use WilburYu\HyperfCacheExt\CounterLimiter;
@@ -23,7 +24,6 @@ use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Contract\ConfigInterface;
 use Psr\Http\Message\ResponseInterface;
 use Hyperf\Utils\Arr;
-use Hyperf\Utils\Context;
 use Hyperf\Utils\InteractsWithTime;
 use Hyperf\Di\Aop\AbstractAspect;
 use Psr\SimpleCache\InvalidArgumentException;
@@ -37,7 +37,7 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
         parseConfig as baseParseConfig;
     }
 
-    public $annotations = [
+    public array $annotations = [
         CounterRateLimiter::class,
     ];
 
@@ -240,7 +240,7 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
         return is_null($retryAfter) ? $this->limiter->retriesLeft($key, $maxAttempts) : 0;
     }
 
-    protected function parseConfig(ConfigInterface $config)
+    protected function parseConfig(ConfigInterface $config): array
     {
         $limiterConfig = $this->baseParseConfig($config);
         $limiterConfig['prefix'] .= 'counter:';

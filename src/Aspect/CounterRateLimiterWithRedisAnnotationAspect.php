@@ -11,18 +11,18 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt\Aspect;
 
+use Hyperf\Context\Context;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
 use WilburYu\HyperfCacheExt\Redis\Limiters\DurationLimiter;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Redis\Redis;
 use Psr\Http\Message\ResponseInterface;
-use Hyperf\Utils\Context;
 
 #[Aspect]
 class CounterRateLimiterWithRedisAnnotationAspect extends CounterRateLimiterAnnotationAspect
 {
-    public $annotations = [
+    public array $annotations = [
         CounterRateLimiterWithRedis::class,
     ];
 

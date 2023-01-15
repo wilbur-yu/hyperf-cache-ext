@@ -28,7 +28,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
         parseConfig as baseParseConfig;
     }
 
-    public $annotations = [
+    public array $annotations = [
         ConcurrencyRateLimiter::class,
     ];
 
@@ -105,7 +105,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
         return new ConcurrencyRateLimiter($property);
     }
 
-    protected function parseConfig(ConfigInterface $config)
+    protected function parseConfig(ConfigInterface $config): array
     {
         $limiterConfig = $this->baseParseConfig($config);
         $limiterConfig['prefix'] .= 'concurrent:';
