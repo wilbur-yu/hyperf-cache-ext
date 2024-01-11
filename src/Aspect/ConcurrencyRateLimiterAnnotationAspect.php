@@ -20,6 +20,8 @@ use Psr\Http\Message\ResponseInterface;
 use WilburYu\HyperfCacheExt\Annotation\ConcurrencyRateLimiter;
 use WilburYu\HyperfCacheExt\Redis\Limiters\ConcurrencyLimiterBuilder;
 
+use function Hyperf\Support\make;
+
 #[Aspect]
 class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
 {
@@ -39,7 +41,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
     protected RequestInterface $request;
 
     /**
-     * @param  ContainerInterface  $container
+     * @param ContainerInterface $container
      *
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
@@ -53,15 +55,15 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
     }
 
     /**
-     * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
+     * @param \Hyperf\Di\Aop\ProceedingJoinPoint $proceedingJoinPoint
      *
-     * @throws \Hyperf\Di\Exception\Exception
      * @return \Psr\Http\Message\ResponseInterface
+     * @throws \Hyperf\Di\Exception\Exception
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
         $annotation = $this->getAnnotationObject($proceedingJoinPoint);
-        $limiterKey = $annotation->prefix.$this->getRateLimiterKey($annotation);
+        $limiterKey = $annotation->prefix . $this->getRateLimiterKey($annotation);
 
         $concurrentRateLimiter = make(ConcurrencyLimiterBuilder::class);
 
@@ -73,7 +75,7 @@ class ConcurrencyRateLimiterAnnotationAspect extends AbstractAspect
                 $annotation->decayMinutes * 60
             )
             ->then(
-                fn () => $proceedingJoinPoint->process()
+                fn() => $proceedingJoinPoint->process()
             );
     }
 

@@ -22,11 +22,11 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 class CounterRateLimiter extends AbstractAnnotation
 {
     public function __construct(
-        public $key,
-        public string|int $maxAttempts,
-        public int $decayMinutes,
-        public string $prefix,
-        public int $for,
+        public $key = '',
+        public string|int $maxAttempts = 10,
+        public int $decayMinutes = 1,
+        public string $prefix = 'hyperf-cache-ext',
+        public int $for = 1
     ) {
     }
 }

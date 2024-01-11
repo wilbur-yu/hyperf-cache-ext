@@ -20,12 +20,12 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 class DurationRateLimiter extends AbstractAnnotation
 {
     public function __construct(
-        public $key,
-        public string|int $maxAttempts,
-        public int $decayMinutes,
-        public string $prefix,
-        public int $timeout,
-        public int $wait
+        public $key = '',
+        public string|int $maxAttempts = 10,
+        public int $decayMinutes = 1,
+        public string $prefix = 'hyperf-cache-ext',
+        public int $timeout = 1,
+        public int $wait = 1
     ) {
     }
 }
