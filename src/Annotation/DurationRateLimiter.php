@@ -19,33 +19,13 @@ use Hyperf\Di\Annotation\AbstractAnnotation;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 class DurationRateLimiter extends AbstractAnnotation
 {
-    /**
-     * @var string|callable
-     */
-    public $key;
-
-    /**
-     * @var int|string
-     */
-    public string|int $maxAttempts;
-
-    /**
-     * @var int
-     */
-    public int $decayMinutes;
-
-    /**
-     * @var string
-     */
-    public string $prefix;
-
-    /**
-     * @var int
-     */
-    public int $timeout;
-
-    /**
-     * @var int
-     */
-    public int $wait;
+    public function __construct(
+        public $key,
+        public string|int $maxAttempts,
+        public int $decayMinutes,
+        public string $prefix,
+        public int $timeout,
+        public int $wait
+    ) {
+    }
 }
