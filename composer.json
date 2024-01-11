@@ -36,7 +36,7 @@
         "hyperf/framework": "^3.0",
         "hyperf/http-server": "^3.0",
         "hyperf/redis": "^3.0",
-        "hyperf/utils": "^3.0"
+        "hyperf/support": "^3.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",

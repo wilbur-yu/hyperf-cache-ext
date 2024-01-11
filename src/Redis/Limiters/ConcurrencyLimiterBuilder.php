@@ -13,7 +13,7 @@ namespace WilburYu\HyperfCacheExt\Redis\Limiters;
 
 use WilburYu\HyperfCacheExt\Exception\LimiterTimeoutException;
 use Hyperf\Redis\Redis;
-use Hyperf\Utils\InteractsWithTime;
+use Hyperf\Support\Traits\InteractsWithTime;
 use Throwable;
 
 class ConcurrencyLimiterBuilder
