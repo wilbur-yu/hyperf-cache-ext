@@ -11,7 +11,7 @@ namespace WilburYu\HyperfCacheExt\Aspect;
 
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
-use Hyperf\Utils\Str;
+use Hyperf\Stringable\Str;
 use Psr\Http\Message\ResponseInterface;
 use WilburYu\HyperfCacheExt\Annotation\ConcurrencyRateLimiter;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiter;

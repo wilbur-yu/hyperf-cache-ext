@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace WilburYu\HyperfCacheExt;
 
 use Closure;
-use Hyperf\Utils\InteractsWithTime;
+use Hyperf\Support\Traits\InteractsWithTime;
 use Psr\SimpleCache\CacheInterface;
+
+use Psr\SimpleCache\InvalidArgumentException;
+
+use function Hyperf\Tappable\tap;
 
 class CounterLimiter
 {
@@ -22,7 +26,7 @@ class CounterLimiter
      * Register a named limiter configuration.
      *
      * @param  string    $name
-     * @param  \Closure  $callback
+     * @param Closure $callback
      *
      * @return void
      */
@@ -48,11 +52,11 @@ class CounterLimiter
      *
      * @param  string    $key
      * @param  int       $maxAttempts
-     * @param  \Closure  $callback
+     * @param Closure $callback
      * @param  int       $decaySeconds
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return mixed
+     *@throws InvalidArgumentException
      */
     public function attempt(string $key, int $maxAttempts, Closure $callback, int $decaySeconds = 60): mixed
     {
@@ -71,7 +75,7 @@ class CounterLimiter
      * @param  string  $key
      * @param  int     $maxAttempts
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return bool
      */
     public function tooManyAttempts(string $key, int $maxAttempts): bool
@@ -123,7 +127,7 @@ class CounterLimiter
      *
      * @param  string  $key
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return mixed
      */
     public function attempts(string $key): mixed
@@ -138,7 +142,7 @@ class CounterLimiter
      *
      * @param  string  $key
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return bool
      */
     public function resetAttempts(string $key): bool
@@ -154,7 +158,7 @@ class CounterLimiter
      * @param  string  $key
      * @param  int     $maxAttempts
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return int
      */
     public function remaining(string $key, int $maxAttempts): int
@@ -172,7 +176,7 @@ class CounterLimiter
      * @param  string  $key
      * @param  int     $maxAttempts
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return int
      */
     public function retriesLeft(string $key, int $maxAttempts): int
@@ -185,7 +189,7 @@ class CounterLimiter
      *
      * @param  string  $key
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return void
      */
     public function clear(string $key): void
@@ -202,7 +206,7 @@ class CounterLimiter
      *
      * @param  string  $key
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return int
      */
     public function availableIn(string $key): int

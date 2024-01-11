@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt\Utils\Packer;
 
-use Hyperf\Contract\PackerInterface;
-
 class PhpSerializerPacker
 {
     public function pack($data): string|int

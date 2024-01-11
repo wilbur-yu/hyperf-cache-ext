@@ -15,7 +15,7 @@ use WilburYu\HyperfCacheExt\Exception\LimiterTimeoutException;
 use DateInterval;
 use DateTimeInterface;
 use Hyperf\Redis\Redis;
-use Hyperf\Utils\InteractsWithTime;
+use Hyperf\Support\Traits\InteractsWithTime;
 
 class DurationLimiterBuilder
 {

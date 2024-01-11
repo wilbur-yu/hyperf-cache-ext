@@ -12,12 +12,18 @@ declare(strict_types=1);
 namespace WilburYu\HyperfCacheExt\Aspect;
 
 use Hyperf\Context\Context;
+use Hyperf\Di\Exception\Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
 use WilburYu\HyperfCacheExt\Redis\Limiters\DurationLimiter;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Redis\Redis;
 use Psr\Http\Message\ResponseInterface;
+
+use function Hyperf\Tappable\tap;
 
 #[Aspect]
 class CounterRateLimiterWithRedisAnnotationAspect extends CounterRateLimiterAnnotationAspect
@@ -38,13 +44,13 @@ class CounterRateLimiterWithRedisAnnotationAspect extends CounterRateLimiterAnno
 
     /**
      * @param  array                               $limits
-     * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
+     * @param ProceedingJoinPoint $proceedingJoinPoint
      *
-     * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     * @return \Psr\Http\Message\ResponseInterface
+     * @throws Exception
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws InvalidArgumentException
+     * @return ResponseInterface
      */
     protected function handleRequest(array $limits, ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
@@ -101,8 +107,8 @@ class CounterRateLimiterWithRedisAnnotationAspect extends CounterRateLimiterAnno
      * @param  int     $maxAttempts
      * @param  int     $decayMinutes
      *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @return mixed
      */
     protected function tooManyAttempts(string $key, int $maxAttempts, int $decayMinutes): mixed

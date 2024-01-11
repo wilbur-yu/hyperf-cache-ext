@@ -14,7 +14,7 @@ use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
 use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\Utils\InteractsWithTime;
+use Hyperf\Support\Traits\InteractsWithTime;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use WilburYu\HyperfCacheExt\Annotation\ConcurrencyRateLimiter;

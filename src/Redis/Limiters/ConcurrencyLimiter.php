@@ -11,10 +11,12 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt\Redis\Limiters;
 
+use Hyperf\Stringable\Str;
 use WilburYu\HyperfCacheExt\Exception\LimiterTimeoutException;
-use Hyperf\Utils\Str;
 use Throwable;
 use Hyperf\Redis\Redis;
+
+use function Hyperf\Tappable\tap;
 
 class ConcurrencyLimiter
 {
@@ -66,8 +68,8 @@ class ConcurrencyLimiter
      * @param  int            $wait
      * @param  callable|null  $callback
      *
-     * @throws \Throwable
-     * @throws \WilburYu\HyperfCacheExt\Exception\LimiterTimeoutException
+     * @throws Throwable
+     * @throws LimiterTimeoutException
      * @return mixed
      */
     public function block(int $timeout, int $wait, ?callable $callback = null): mixed

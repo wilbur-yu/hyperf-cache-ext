@@ -11,7 +11,11 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt\Aspect;
 
+use Hyperf\Collection\Arr;
 use Hyperf\Context\Context;
+use Hyperf\Di\Exception\Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiter;
 use WilburYu\HyperfCacheExt\Annotation\CounterRateLimiterWithRedis;
 use WilburYu\HyperfCacheExt\CounterLimiter;
@@ -23,11 +27,12 @@ use Hyperf\Di\Annotation\Aspect;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Contract\ConfigInterface;
 use Psr\Http\Message\ResponseInterface;
-use Hyperf\Utils\Arr;
-use Hyperf\Utils\InteractsWithTime;
+use Hyperf\Support\Traits\InteractsWithTime;
 use Hyperf\Di\Aop\AbstractAspect;
 use Psr\SimpleCache\InvalidArgumentException;
 use WilburYu\HyperfCacheExt\Exception\CounterRateLimiterException;
+
+use function Hyperf\Collection\collect;
 
 #[Aspect]
 class CounterRateLimiterAnnotationAspect extends AbstractAspect
@@ -52,8 +57,8 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
     /**
      * @param  ContainerInterface  $container
      *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function __construct(
         protected ContainerInterface $container
@@ -65,11 +70,11 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
     }
 
     /**
-     * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
+     * @param ProceedingJoinPoint $proceedingJoinPoint
      *
-     * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return ResponseInterface
+     *@throws InvalidArgumentException
+     * @throws Exception
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
@@ -94,13 +99,13 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
 
     /**
      * @param  string                              $limiterName
-     * @param  \Closure                            $limiter
+     * @param Closure $limiter
      * @param                                      $annotation
-     * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
+     * @param ProceedingJoinPoint $proceedingJoinPoint
      *
-     * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return ResponseInterface
+     *@throws InvalidArgumentException
+     * @throws Exception
      */
     protected function handleRequestUsingNamedLimiter(
         string $limiterName,
@@ -127,11 +132,11 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
 
     /**
      * @param  array                               $limits
-     * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
+     * @param  ProceedingJoinPoint $proceedingJoinPoint
      *
-     * @throws \Hyperf\Di\Exception\Exception
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
+     *@throws InvalidArgumentException
+     * @throws Exception
      */
     protected function handleRequest(array $limits, ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {
@@ -217,8 +222,8 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
      *
      * @param  string  $key
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return int
+     * @throws InvalidArgumentException
      */
     protected function getTimeUntilNextRetry(string $key): int
     {
@@ -232,8 +237,8 @@ class CounterRateLimiterAnnotationAspect extends AbstractAspect
      * @param  int       $maxAttempts
      * @param  int|null  $retryAfter
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      * @return int
+     * @throws InvalidArgumentException
      */
     protected function calculateRemainingAttempts(string $key, int $maxAttempts, ?int $retryAfter = null): int
     {

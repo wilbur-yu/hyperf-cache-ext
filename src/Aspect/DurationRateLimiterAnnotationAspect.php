@@ -13,12 +13,16 @@ use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Annotation\Aspect;
 use Hyperf\Di\Aop\AbstractAspect;
 use Hyperf\Di\Aop\ProceedingJoinPoint;
+use Hyperf\Di\Exception\Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use WilburYu\HyperfCacheExt\Annotation\DurationRateLimiter;
 use WilburYu\HyperfCacheExt\Redis\Limiters\DurationLimiterBuilder;
 
+use function Hyperf\Support\make;
 #[Aspect]
 class DurationRateLimiterAnnotationAspect extends AbstractAspect
 {
@@ -39,8 +43,8 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
     /**
      * @param  ContainerInterface  $container
      *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function __construct(
         protected ContainerInterface $container
@@ -51,10 +55,10 @@ class DurationRateLimiterAnnotationAspect extends AbstractAspect
     }
 
     /**
-     * @param  \Hyperf\Di\Aop\ProceedingJoinPoint  $proceedingJoinPoint
+     * @param ProceedingJoinPoint $proceedingJoinPoint
      *
-     * @throws \Hyperf\Di\Exception\Exception
-     * @return \Psr\Http\Message\ResponseInterface
+     * @throws Exception
+     * @return ResponseInterface
      */
     public function process(ProceedingJoinPoint $proceedingJoinPoint): ResponseInterface
     {

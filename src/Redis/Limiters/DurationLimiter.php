@@ -78,7 +78,7 @@ class DurationLimiter
      * @param  int            $wait
      * @param  callable|null  $callback
      *
-     * @throws \WilburYu\HyperfCacheExt\Exception\LimiterTimeoutException
+     * @throws LimiterTimeoutException
      * @return mixed
      */
     public function block(int $timeout, int $wait, ?callable $callback = null): mixed

@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace WilburYu\HyperfCacheExt;
 
-use WilburYu\HyperfCacheExt\CacheInterface;
 use Hyperf\Cache\Cache as BaseCache;
 
 class Cache extends BaseCache implements CacheInterface
