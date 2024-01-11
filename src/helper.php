@@ -7,7 +7,7 @@
  * @link     https://github.com/wilbur-yu
  */
 
-use Hyperf\Utils\ApplicationContext;
+use Hyperf\Context\ApplicationContext;
 use WilburYu\HyperfCacheExt\CacheInterface;
 use WilburYu\HyperfCacheExt\CounterLimiter;
 use WilburYu\HyperfCacheExt\Redis\Limiters\ConcurrencyLimiterBuilder;

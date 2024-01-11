@@ -28,5 +28,14 @@ class CounterRateLimiter extends AbstractAnnotation
         public string $prefix = 'hyperf-cache-ext',
         public int $for = 1
     ) {
+        if (is_array($this->key)) {
+            $tmp = $this->key;
+            $this->key = $tmp['key'];
+            $this->maxAttempts = $tmp['maxAttempts'];
+            $this->decayMinutes = $tmp['decayMinutes'];
+            $this->prefix = $tmp['prefix'];
+            $this->for = $tmp['for'];
+            unset($tmp);
+        }
     }
 }

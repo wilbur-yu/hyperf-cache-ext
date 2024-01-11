@@ -27,5 +27,15 @@ class ConcurrencyRateLimiter extends AbstractAnnotation
         public int $timeout = 1,
         public int $wait = 1
     ) {
+        if (is_array($this->key)) {
+            $tmp = $this->key;
+            $this->key = $tmp['key'];
+            $this->maxAttempts = $tmp['maxAttempts'];
+            $this->decayMinutes = $tmp['decayMinutes'];
+            $this->prefix = $tmp['prefix'];
+            $this->timeout = $tmp['timeout'];
+            $this->wait = $tmp['wait'];
+            unset($tmp);
+        }
     }
 }
